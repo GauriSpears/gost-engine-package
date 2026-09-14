@@ -10,12 +10,16 @@ if [[ ! -x "$GOST_BIN" ]]; then
   exit 1
 fi
 
-if ! openssl list -providers | grep -i gost; then
+openssl version -a
+openssl list -providers
+openssl list -providers -provider gostprov
+
+if ! openssl list -providers -provider gostprov | grep -i gost; then
   echo "Gost provider failed to load" >&2
   exit 1
 fi
 
-if ! openssl list -digest-algorithms | grep -i gost; then
+if ! openssl list -digest-algorithms -provider gostprov | grep -i gost; then
   echo "Gost provider algorithms failed to load" >&2
   exit 1
 fi
