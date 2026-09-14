@@ -7,25 +7,42 @@ fetch_cycles() {
   curl -fsSL --retry 3 --retry-delay 2 "https://endoflife.date/api/${product}.json" 2>/dev/null || echo "[]"
 }
 
-# Returns up to 2 newest non-EOL cycle names (major), newline-separated
+# Returns up to 2 newest non-EOL cycle names (major), newline-separated.
+# EOL is a date (YYYY-MM-DD); a cycle is still supported when eol is null/false
+# or the date is strictly in the future.
 two_latest_majors() {
   local json="$1"
   if ! command -v jq >/dev/null 2>&1; then
     echo "jq is required" >&2
     return 1
   fi
-  # Prefer cycles that are not eol; sort by release/newest first via cycle as number when possible
-  echo "$json" | jq -r '
+  local today
+  today=$(date -u +%Y-%m-%d)
+  echo "$json" | jq -r --arg today "$today" '
     [.[]
-      | select((.eol | tostring | ascii_downcase) != "true")
       | select(.cycle != null)
-      | {cycle: (.cycle | tostring), release: (.release // .cycle | tostring)}
+      | .eol as $eol
+      | select(
+          $eol == null
+          or ($eol | type) == "boolean" and $eol == false
+          or ($eol | type) == "string" and ($eol | test("^[0-9]{4}-")) and $eol > $today
+        )
+      | {
+          cycle: (.cycle | tostring),
+          # numeric major for stable descending sort ("10" > "9")
+          major: (
+            (.cycle | tostring)
+            | capture("^(?<m>[0-9]+)")
+            | .m
+            | tonumber
+          )
+        }
     ]
-    | sort_by(.release) | reverse
-    | [.[].cycle]
-    | unique
-    | .[0:2]
-    | .[]
+    # unique_by keeps first occurrence; then sort numeric desc
+    | unique_by(.major)
+    | sort_by(.major) | reverse
+    | .[0:2][]
+    | .cycle
   ' 2>/dev/null || true
 }
 
@@ -43,7 +60,7 @@ while IFS= read -r maj; do
   # cycle might be "13" or "13.x" — take leading integer
   ver=$(echo "$maj" | sed -n 's/^\([0-9][0-9]*\).*/\1/p')
   [[ -z "$ver" ]] && continue
-  img="debian:$ver"     
+  img="debian:$ver"
   items=$(jq -c --arg d debian --arg v "$ver" --arg i "$img" --arg p deb \
     '. + [{distro:$d, version:$v, image:$i, pkg:$p}]' <<<"$items")
 done <<< "$deb_majors"
