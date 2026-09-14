@@ -1,4 +1,4 @@
-name: Build gost-engine (upstream main)
+name: Build gost-engine (upstream master)
 
 on:
   schedule:
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       gost_sha:
-        description: 'gost-engine commit SHA (empty = current main HEAD)'
+        description: 'gost-engine commit SHA (empty = current master HEAD)'
         required: false
         default: ''
       force:
@@ -19,7 +19,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: build-gost-engine-main
+  group: build-gost-engine-master
   cancel-in-progress: false
 
 jobs:
@@ -37,16 +37,13 @@ jobs:
       - name: Install jq
         run: sudo apt-get update -y && sudo apt-get install -y --no-install-recommends jq curl ca-certificates
 
-      - name: Resolve gost-engine/engine main (or input SHA)
+      - name: Resolve gost-engine/engine master (or input SHA)
         id: up
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          if [ -z "${{ inputs.gost_sha }}" ]; then
-            bash scripts/detect-gost-engine-main.sh | tee /tmp/up.env
-            grep -E '^(sha|short|build_id)=' /tmp/up.env >> "$GITHUB_OUTPUT"
-          else
+          if [ -n "${{ inputs.gost_sha }}" ]; then
             SHA="${{ inputs.gost_sha }}"
             # normalize short/full
             if [ ${#SHA} -lt 40 ]; then
@@ -56,10 +53,13 @@ jobs:
                 | jq -r .sha)
             fi
             SHORT="${SHA:0:12}"
-            BUILD_ID="main-${SHORT}"
+            BUILD_ID="master-${SHORT}"
             echo "sha=$SHA" >> "$GITHUB_OUTPUT"
             echo "short=$SHORT" >> "$GITHUB_OUTPUT"
             echo "build_id=$BUILD_ID" >> "$GITHUB_OUTPUT"
+          else
+            bash scripts/detect-gost-engine-master.sh | tee /tmp/up.env
+            grep -E '^(sha|short|build_id)=' /tmp/up.env >> "$GITHUB_OUTPUT"
           fi
           echo "Upstream build_id=$(grep build_id= "$GITHUB_OUTPUT" | tail -1)"
 
@@ -193,7 +193,7 @@ jobs:
           dnf -y groupinstall "Development Tools"
           dnf update
           dnf -y install gcc gcc-c++ kernel-devel make git autoconf automake libtool git openssl libssl-dev cmake
-      - name: Build gost-engine from upstream main commit
+      - name: Build gost-engine from upstream master commit
         run: bash scripts/build.sh
 
       - name: Test
@@ -231,7 +231,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.resolve.outputs.build_id }}
-          name: Gost-engine main@${{ needs.resolve.outputs.short }}
+          name: Gost-engine master@${{ needs.resolve.outputs.short }}
           body: |
             Build of **gost-engine** commit [`${{ needs.resolve.outputs.sha }}`](https://github.com/gost-engine/engine/commit/${{ needs.resolve.outputs.sha }}).
 
