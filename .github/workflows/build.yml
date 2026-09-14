@@ -32,7 +32,7 @@ jobs:
       should_build: ${{ steps.gate.outputs.should_build }}
       matrix: ${{ steps.matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@main
 
       - name: Install jq
         run: sudo apt-get update -y && sudo apt-get install -y --no-install-recommends jq curl ca-certificates
