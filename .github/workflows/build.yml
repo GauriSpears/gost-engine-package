@@ -115,7 +115,7 @@ jobs:
       DEBIAN_FRONTEND: noninteractive
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@main
 
       - name: Install build dependencies (Debian)
         if: matrix.distro == 'debian'
@@ -204,7 +204,7 @@ jobs:
         run: bash scripts/package.sh
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@main
         with:
           name: gost-engine-${{ needs.resolve.outputs.build_id }}-${{ matrix.distro }}-${{ matrix.version }}
           path: out/*
@@ -216,7 +216,7 @@ jobs:
     if: needs.resolve.outputs.should_build == 'true' && needs.build.result == 'success'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@main
         with:
           path: artifacts
 
