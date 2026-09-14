@@ -119,21 +119,21 @@ jobs:
       - name: Install build dependencies (Debian)
         if: matrix.distro == 'debian'
         run: |
-          set -euo pipefail
+          set -eu
           echo "deb https://deb.debian.org/debian experimental main
-            deb https://deb.debian.org/debian unstable main
-            deb https://deb.debian.org/debian testing main">/etc/apt/sources.list.d/gku.list
+deb https://deb.debian.org/debian unstable main
+deb https://deb.debian.org/debian testing main">/etc/apt/sources.list.d/gku.list
           echo "Package: *
-            Pin: release a=testing
-            Pin-Priority: -1
-            
-            Package: *
-            Pin: release a=unstable
-            Pin-Priority: -1
-            
-            Package: *
-            Pin: release a=experimental
-            Pin-Priority: -1">/etc/apt/preferences.d/gku.pref
+Pin: release a=testing
+Pin-Priority: -1
+
+Package: *
+Pin: release a=unstable
+Pin-Priority: -1
+
+Package: *
+Pin: release a=experimental
+Pin-Priority: -1">/etc/apt/preferences.d/gku.pref
           apt-get update -y
           forcepack() {
             pack=$1
@@ -182,16 +182,16 @@ jobs:
         run: |
           set -euo pipefail
           pacman -Syu --noconfirm
-          pacman -Sy --needed --noconfirm autoconf automake libtool git openssl libssl-dev cmake
+          pacman -Sy --needed --noconfirm autoconf automake libtool git openssl cmake
 
       - name: Install build dependencies (AlmaLinux)
         if: matrix.distro == 'almalinux'
         run: |
           set -euo pipefail
-          dnf update
+          dnf -y update
           dnf -y install epel-release
           dnf -y groupinstall "Development Tools"
-          dnf update
+          dnf -y update
           dnf -y install gcc gcc-c++ kernel-devel make git autoconf automake libtool git openssl libssl-dev cmake
       - name: Build gost-engine from upstream master commit
         run: bash scripts/build.sh
