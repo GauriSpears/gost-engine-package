@@ -43,7 +43,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          if [ -n "${{ inputs.gost_sha }}" ]; then
+          if [ -z "${{ inputs.gost_sha }}" ]; then
+            bash scripts/detect-gost-engine-main.sh | tee /tmp/up.env
+            grep -E '^(sha|short|build_id)=' /tmp/up.env >> "$GITHUB_OUTPUT"
+          else
             SHA="${{ inputs.gost_sha }}"
             # normalize short/full
             if [ ${#SHA} -lt 40 ]; then
@@ -57,10 +60,6 @@ jobs:
             echo "sha=$SHA" >> "$GITHUB_OUTPUT"
             echo "short=$SHORT" >> "$GITHUB_OUTPUT"
             echo "build_id=$BUILD_ID" >> "$GITHUB_OUTPUT"
-          else
-            bash scripts/detect-gost-engine-main.sh | tee /tmp/up.env
-            # shellcheck disable=SC1091
-            grep -E '^(sha|short|build_id)=' /tmp/up.env >> "$GITHUB_OUTPUT"
           fi
           echo "Upstream build_id=$(grep build_id= "$GITHUB_OUTPUT" | tail -1)"
 
