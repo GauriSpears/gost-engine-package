@@ -201,6 +201,7 @@ jobs:
         if: matrix.distro == 'arch'
         run: |
           set -euo pipefail
+          pacman-key --init
           pacman -Syu --noconfirm
           pacman -Sy --needed --noconfirm autoconf automake libtool git openssl cmake
 
