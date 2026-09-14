@@ -2,15 +2,15 @@
 set -euo pipefail
 
 GOST_SHA="${GOST_SHA:?}"
-BUILD_ID="${BUILD_ID:-main-${GOST_SHA:0:12}}"
+BUILD_ID="${BUILD_ID:-master-${GOST_SHA:0:12}}"
 DISTRO="${DISTRO:?}"
 DISTRO_VERSION="${DISTRO_VERSION:-}"
 BUILD_ROOT="${BUILD_ROOT:-$(pwd)/build}"
 SRC_DIR="${BUILD_ROOT}/gost-src"
 OUT="${OUT_DIR:-$(pwd)/out}"
 PREFIX="/usr"
-# Version string for packages: 0.0.0+main.<sha12> (valid enough for fpm/dpkg)
-VERSION="0.0.0+main.${GOST_SHA:0:12}"
+# Version string for packages: 0.0.0+master.<sha12> (valid enough for fpm/dpkg)
+VERSION="0.0.0+master.${GOST_SHA:0:12}"
 ARCH="$(uname -m)"
 case "$ARCH" in
   x86_64) DEB_ARCH=amd64; RPM_ARCH=x86_64 ;;
@@ -26,7 +26,7 @@ echo "==> Staging into $STAGE$PREFIX"
 DESTDIR="$STAGE$PREFIX" cmake --install "$SRC_DIR" --config Release
 
 PKG_NAME="gost-engine"
-DESCRIPTION="Gost-engine main@${GOST_SHA:0:12}"
+DESCRIPTION="Gost-engine master@${GOST_SHA:0:12}"
 
 package_deb() {
   local suite="${DISTRO_VERSION:-unknown}"
@@ -46,7 +46,7 @@ Version: $deb_ver
 Section: web
 Priority: optional
 Architecture: $DEB_ARCH
-Maintainer: gost-engine-package CI <ci@localhost>
+mastertainer: gost-engine-package CI <ci@localhost>
 Depends: libssl3, libc6
 Installed-Size: ${size:-1}
 Description: $DESCRIPTION
@@ -58,27 +58,27 @@ CTRL
 package_rpm() {
   local el="${DISTRO_VERSION:-el}"
   if command -v fpm >/dev/null 2>&1; then
-    fpm -s dir -t rpm -n "$PKG_NAME" -v "0.0.0" --iteration "1.main.${GOST_SHA:0:12}.${el}" \
+    fpm -s dir -t rpm -n "$PKG_NAME" -v "0.0.0" --iteration "1.master.${GOST_SHA:0:12}.${el}" \
       -a "$RPM_ARCH" --description "$DESCRIPTION" --depends "openssl-libs" \
       -C "$STAGE" usr || true
     mv -f ${PKG_NAME}-*.rpm "$OUT/" 2>/dev/null || true
   fi
   if ! ls "$OUT"/*.rpm >/dev/null 2>&1; then
-    tar -C "$STAGE" -czf "$OUT/${PKG_NAME}-0.0.0-1.main.${GOST_SHA:0:12}.${el}.${RPM_ARCH}.tar.gz" usr
+    tar -C "$STAGE" -czf "$OUT/${PKG_NAME}-0.0.0-1.master.${GOST_SHA:0:12}.${el}.${RPM_ARCH}.tar.gz" usr
   fi
 }
 
 package_arch() {
   if command -v fpm >/dev/null 2>&1; then
-    fpm -s dir -t pacman -n "$PKG_NAME" -v "0.0.0+main.${GOST_SHA:0:12}" --iteration 1 \
+    fpm -s dir -t pacman -n "$PKG_NAME" -v "0.0.0+master.${GOST_SHA:0:12}" --iteration 1 \
       -a "$ARCH" --description "$DESCRIPTION" -C "$STAGE" usr || true
     mv -f ${PKG_NAME}-*.pkg.tar* "$OUT/" 2>/dev/null || true
   fi
   if ! ls "$OUT"/${PKG_NAME}-* >/dev/null 2>&1; then
     if command -v zstd >/dev/null; then
-      tar -C "$STAGE" -cf - usr | zstd -o "$OUT/${PKG_NAME}-0.0.0+main.${GOST_SHA:0:12}-1-${ARCH}.pkg.tar.zst"
+      tar -C "$STAGE" -cf - usr | zstd -o "$OUT/${PKG_NAME}-0.0.0+master.${GOST_SHA:0:12}-1-${ARCH}.pkg.tar.zst"
     else
-      tar -C "$STAGE" -czf "$OUT/${PKG_NAME}-0.0.0+main.${GOST_SHA:0:12}-1-${ARCH}.tar.gz" usr
+      tar -C "$STAGE" -czf "$OUT/${PKG_NAME}-0.0.0+master.${GOST_SHA:0:12}-1-${ARCH}.tar.gz" usr
     fi
   fi
 }

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Clone gost-engine/engine at GOST_SHA (main HEAD), cmake, build.
+# Clone gost-engine/engine at GOST_SHA (master HEAD), cmake, build.
 set -euo pipefail
 
 GOST_SHA="${GOST_SHA:?set GOST_SHA (full git commit on gost-engine/engine)}"
