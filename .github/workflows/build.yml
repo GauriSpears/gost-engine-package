@@ -199,7 +199,7 @@ jobs:
           set -euo pipefail
           pacman-key --init
           pacman -Syu --noconfirm
-          pacman -Sy --needed --noconfirm bash grep make autoconf automake libtool git openssl cmake
+          pacman -Sy --needed --noconfirm bash grep gcc make autoconf automake libtool git openssl cmake
 
       - name: Install build dependencies (AlmaLinux)
         if: matrix.distro == 'almalinux'
