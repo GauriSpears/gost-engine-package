@@ -120,20 +120,24 @@ jobs:
         if: matrix.distro == 'debian'
         run: |
           set -eu
-          echo "deb https://deb.debian.org/debian experimental main
-deb https://deb.debian.org/debian unstable main
-deb https://deb.debian.org/debian testing main">/etc/apt/sources.list.d/gku.list
-          echo "Package: *
-Pin: release a=testing
-Pin-Priority: -1
+          cat > /etc/apt/sources.list.d/gku.list << 'EOF'
+          deb https://deb.debian.org/debian experimental main
+          deb https://deb.debian.org/debian unstable main
+          deb https://deb.debian.org/debian testing main
+          EOF
+          cat > /etc/apt/preferences.d/gku.pref << 'EOF'
+          Package: *
+          Pin: release a=testing
+          Pin-Priority: -1
 
-Package: *
-Pin: release a=unstable
-Pin-Priority: -1
+          Package: *
+          Pin: release a=unstable
+          Pin-Priority: -1
 
-Package: *
-Pin: release a=experimental
-Pin-Priority: -1">/etc/apt/preferences.d/gku.pref
+          Package: *
+          Pin: release a=experimental
+          Pin-Priority: -1
+          EOF
           apt-get update -y
           forcepack() {
             pack=$1
