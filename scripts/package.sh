@@ -2,7 +2,7 @@
 set -euo pipefail
 
 GOST_SHA="${GOST_SHA:?}"
-BUILD_ID="${BUILD_ID:-master-${GOST_SHA:0:12}}"
+BUILD_ID="${BUILD_ID:-${GOST_SHA:0:12}}"
 DISTRO="${DISTRO:?}"
 DISTRO_VERSION="${DISTRO_VERSION:-}"
 BUILD_ROOT="${BUILD_ROOT:-$(pwd)/build}"
@@ -10,7 +10,7 @@ SRC_DIR="${BUILD_ROOT}/gost-src"
 TEST_SO="${SRC_DIR}/build/bin/gostprov.so"
 OUT="${OUT_DIR:-$(pwd)/out}"
 # Version string for packages: 0.0.0+master.<sha12> (valid enough for fpm/dpkg)
-VERSION="0.0.0+master.${GOST_SHA:0:12}"
+VERSION="${VERSION:-$(date +'%Y.%m.%d')-${GOST_SHA:0:12}}"
 ARCH="$(uname -m)"
 case "$ARCH" in
   x86_64) DEB_ARCH=amd64; RPM_ARCH=x86_64 ;;
@@ -46,6 +46,7 @@ echo "$DEPS"
       -a "$DEB_ARCH" --description "$DESCRIPTION" --url "https://github.com/GauriSpears/gost-engine-package" \
       --depends "$DEPS" -C "$STAGE" usr || true
     mv -f ${PKG_NAME}_*.deb "$OUT/" 2>/dev/null || true
+    echo "FPM!!!!!!!!!!!!!!"
   fi
   if ! ls "$OUT"/*.deb >/dev/null 2>&1; then
     mkdir -p "$STAGE/DEBIAN"
@@ -78,13 +79,14 @@ ldd "$TEST_SO"
     done | sort -u | paste -sd ', ' -)
 echo "$DEPS"
   if command -v fpm >/dev/null 2>&1; then
-    fpm -s dir -t rpm -n "$PKG_NAME" -v "0.0.0" --iteration "1.master.${GOST_SHA:0:12}.${el}" \
+    fpm -s dir -t rpm -n "$PKG_NAME" -v "$VERSION" --iteration "1.${GOST_SHA:0:12}.${el}" \
       -a "$RPM_ARCH" --description "$DESCRIPTION" --depends "$DEPS" \
       -C "$STAGE" usr || true
     mv -f ${PKG_NAME}-*.rpm "$OUT/" 2>/dev/null || true
+    echo "FPM!!!!!!!!!!!!!!"
   fi
   if ! ls "$OUT"/*.rpm >/dev/null 2>&1; then
-    tar -C "$STAGE" -czf "$OUT/${PKG_NAME}-0.0.0-1.master.${GOST_SHA:0:12}.${el}.${RPM_ARCH}.tar.gz" usr
+    tar -C "$STAGE" -czf "$OUT/${PKG_NAME}-${VERSION}.${el}.${RPM_ARCH}.tar.gz" usr
   fi
 }
 
@@ -100,15 +102,16 @@ ldd "$TEST_SO"
     done | sort -u | paste -sd ', ' -)
 echo "$DEPS"
   if command -v fpm >/dev/null 2>&1; then
-    fpm -s dir -t pacman -n "$PKG_NAME" -v "0.0.0+master.${GOST_SHA:0:12}" --iteration 1 \
+    fpm -s dir -t pacman -n "$PKG_NAME" -v "$VERSION" --iteration 1 \
       -a "$ARCH" --description "$DESCRIPTION" --depends "$DEPS" -C "$STAGE" usr || true
     mv -f ${PKG_NAME}-*.pkg.tar* "$OUT/" 2>/dev/null || true
+    echo "FPM!!!!!!!!!!!!!!"
   fi
   if ! ls "$OUT"/${PKG_NAME}-* >/dev/null 2>&1; then
     if command -v zstd >/dev/null; then
-      tar -C "$STAGE" -cf - usr | zstd -o "$OUT/${PKG_NAME}-0.0.0+master.${GOST_SHA:0:12}-1-${ARCH}.pkg.tar.zst"
+      tar -C "$STAGE" -cf - usr | zstd -o "$OUT/${PKG_NAME}-${VERSION}-${ARCH}.pkg.tar.zst"
     else
-      tar -C "$STAGE" -czf "$OUT/${PKG_NAME}-0.0.0+master.${GOST_SHA:0:12}-1-${ARCH}.tar.gz" usr
+      tar -C "$STAGE" -czf "$OUT/${PKG_NAME}-${VERSION}-${ARCH}.tar.gz" usr
     fi
   fi
 }
