@@ -64,12 +64,12 @@ CTRL
 
 package_rpm() {
   local el="${DISTRO_VERSION:-el}"
-  DEPS=objdump -p "$TEST_SO" | grep -oP 'NEEDED\s+\K\S+' | while read -r lib; do
+  DEPS=$(objdump -p "$TEST_SO" | grep -oP 'NEEDED\s+\K\S+' | while read -r lib; do
       path=$(ldd "$TEST_SO" | grep -oP "$lib => \K\S+" || true)
       if [ -n "$path" ] && [ "$path" != "not" ]; then
         rpm -qf "$path" 2>/dev/null | cut -d: -f1
       fi
-    done | sort -u | paste -sd ', ' -
+    done | sort -u | paste -sd ', ' -)
 echo "$DEPS"
   if command -v fpm >/dev/null 2>&1; then
     fpm -s dir -t rpm -n "$PKG_NAME" -v "0.0.0" --iteration "1.master.${GOST_SHA:0:12}.${el}" \
@@ -83,12 +83,12 @@ echo "$DEPS"
 }
 
 package_arch() {
-  DEPS=objdump -p "$TEST_SO" | grep -oP 'NEEDED\s+\K\S+' | while read -r lib; do
+  DEPS=$(objdump -p "$TEST_SO" | grep -oP 'NEEDED\s+\K\S+' | while read -r lib; do
       path=$(ldd "$TEST_SO" | grep -oP "$lib => \K\S+" || true)
       if [ -n "$path" ] && [ "$path" != "not" ]; then
         pacman -Qo "$path" 2>/dev/null | cut -d: -f1
       fi
-    done | sort -u | paste -sd ', ' -
+    done | sort -u | paste -sd ', ' -)
 echo "$DEPS"
   if command -v fpm >/dev/null 2>&1; then
     fpm -s dir -t pacman -n "$PKG_NAME" -v "0.0.0+master.${GOST_SHA:0:12}" --iteration 1 \
