@@ -147,16 +147,16 @@ jobs:
           
           forcepack() {
             pack=$1
-            DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confnew" reinstall $pack
-            DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confnew" -t testing reinstall $pack
-            DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confnew" -t unstable reinstall $pack
-            DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confnew" -t experimental reinstall $pack
+            DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confnew" -o Dpkg::Options::="--force-overwrite" reinstall $pack
+            DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confnew" -o Dpkg::Options::="--force-overwrite" -t testing reinstall $pack
+            DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confnew" -o Dpkg::Options::="--force-overwrite" -t unstable reinstall $pack
+            DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confnew" -o Dpkg::Options::="--force-overwrite" -t experimental reinstall $pack
           }
           forcepackt() {
             pack=$1
-            DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confnew" reinstall $pack
-            DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confnew" -t testing reinstall $pack
-            DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confnew" -t unstable reinstall $pack
+            DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confnew" -o Dpkg::Options::="--force-overwrite" reinstall $pack
+            DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confnew" -o Dpkg::Options::="--force-overwrite" -t testing reinstall $pack
+            DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confnew" -o Dpkg::Options::="--force-overwrite" -t unstable reinstall $pack
           }
           
           apt-get install -y build-essential autoconf automake libtool git
