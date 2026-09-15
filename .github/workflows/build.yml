@@ -110,7 +110,6 @@ jobs:
       DISTRO_VERSION: ${{ matrix.version }}
       BUILD_ROOT: /work/build
       OUT_DIR: /work/out
-      PREFIX: /usr
       DEBIAN_FRONTEND: noninteractive
 
     steps:
@@ -217,7 +216,7 @@ jobs:
         uses: actions/upload-artifact@main
         with:
           name: gost-engine-${{ needs.resolve.outputs.build_id }}-${{ matrix.distro }}-${{ matrix.version }}
-          path: out/*
+          path: /work/out/*
           if-no-files-found: error
           retention-days: 14
 
