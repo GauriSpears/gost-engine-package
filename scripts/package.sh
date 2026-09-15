@@ -28,6 +28,9 @@ DESTDIR="$STAGE" cmake --install "${SRC_DIR}/build" --config Release
 PKG_NAME="gost-engine"
 DESCRIPTION="Gost-engine master@${GOST_SHA:0:12}"
 
+echo "$TEST_SO"
+ls "$SRC_DIR"
+
 package_deb() {
   local suite="${DISTRO_VERSION:-unknown}"
   local deb_ver="${VERSION}-1+${suite}"
