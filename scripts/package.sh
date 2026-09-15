@@ -31,8 +31,10 @@ DESCRIPTION="Gost-engine master@${GOST_SHA:0:12}"
 package_deb() {
   local suite="${DISTRO_VERSION:-unknown}"
   local deb_ver="${VERSION}-1+${suite}"
-objdump -p "$TEST_SO"
+objdump -p "$TEST_SO" | grep -oP 'NEEDED\s+\K\S+'
 ldd "$TEST_SO"
+dpkg -S /lib/x86_64-linux-gnu/libcrypto.so.3 ; echo exit:$?
+dpkg -S /lib/x86_64-linux-gnu/libc.so.6     ; echo exit:$?
   DEPS=$(objdump -p "$TEST_SO" | grep -oP 'NEEDED\s+\K\S+' | while read -r lib; do
       path=$(ldd "$TEST_SO" | grep -oP "$lib => \K\S+" || true)
       if [ -n "$path" ] && [ "$path" != "not" ]; then
@@ -66,7 +68,7 @@ CTRL
 
 package_rpm() {
   local el="${DISTRO_VERSION:-el}"
-objdump -p "$TEST_SO"
+objdump -p "$TEST_SO" | grep -oP 'NEEDED\s+\K\S+'
 ldd "$TEST_SO"
   DEPS=$(objdump -p "$TEST_SO" | grep -oP 'NEEDED\s+\K\S+' | while read -r lib; do
       path=$(ldd "$TEST_SO" | grep -oP "$lib => \K\S+" || true)
@@ -87,7 +89,7 @@ echo "$DEPS"
 }
 
 package_arch() {
-objdump -p "$TEST_SO"
+objdump -p "$TEST_SO" | grep -oP 'NEEDED\s+\K\S+'
 ldd "$TEST_SO"
   DEPS=$(objdump -p "$TEST_SO" | grep -oP 'NEEDED\s+\K\S+' | while read -r lib; do
       path=$(ldd "$TEST_SO" | grep -oP "$lib => \K\S+" || true)
