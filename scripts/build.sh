@@ -78,4 +78,6 @@ cmake -DCMAKE_BUILD_TYPE=Release \
 cmake --build . --config Release
 cmake --install . --config Release
 
+pwd
+
 echo "==> Gost-engine build finished"
