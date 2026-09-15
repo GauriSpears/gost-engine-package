@@ -7,9 +7,8 @@ DISTRO="${DISTRO:?}"
 DISTRO_VERSION="${DISTRO_VERSION:-}"
 BUILD_ROOT="${BUILD_ROOT:-$(pwd)/build}"
 SRC_DIR="${BUILD_ROOT}/gost-src"
-TEST_SO="${SRC_DIR}/bin/gostprov.so"
+TEST_SO="${SRC_DIR}/build/bin/gostprov.so"
 OUT="${OUT_DIR:-$(pwd)/out}"
-PREFIX="/usr"
 # Version string for packages: 0.0.0+master.<sha12> (valid enough for fpm/dpkg)
 VERSION="0.0.0+master.${GOST_SHA:0:12}"
 ARCH="$(uname -m)"
@@ -23,8 +22,8 @@ mkdir -p "$OUT"
 STAGE=$(mktemp -d)
 trap 'rm -rf "$STAGE"' EXIT
 
-echo "==> Staging into $STAGE$PREFIX"
-DESTDIR="$STAGE$PREFIX" cmake --install "$SRC_DIR/build" --config Release
+echo "==> Staging into $STAGE"
+DESTDIR="$STAGE" cmake --install "${SRC_DIR}/build" --config Release
 
 PKG_NAME="gost-engine"
 DESCRIPTION="Gost-engine master@${GOST_SHA:0:12}"
