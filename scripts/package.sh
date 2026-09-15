@@ -33,12 +33,11 @@ package_deb() {
   local deb_ver="${VERSION}-1+${suite}"
 objdump -p "$TEST_SO" | grep -oP 'NEEDED\s+\K\S+'
 ldd "$TEST_SO"
-dpkg -S /lib/x86_64-linux-gnu/libcrypto.so.3 ; echo exit:$?
-dpkg -S /lib/x86_64-linux-gnu/libc.so.6     ; echo exit:$?
   DEPS=$(objdump -p "$TEST_SO" | grep -oP 'NEEDED\s+\K\S+' | while read -r lib; do
       path=$(ldd "$TEST_SO" | grep -oP "$lib => \K\S+" || true)
       if [ -n "$path" ] && [ "$path" != "not" ]; then
-        dpkg -S "$path" 2>/dev/null | cut -d: -f1
+        real_path=$(readlink -f "$path" 2>/dev/null || echo "$path")
+        dpkg -S "$real_path" 2>/dev/null | cut -d: -f1
       fi
     done | sort -u | paste -sd ',' -)
 echo "$DEPS"
@@ -73,7 +72,8 @@ ldd "$TEST_SO"
   DEPS=$(objdump -p "$TEST_SO" | grep -oP 'NEEDED\s+\K\S+' | while read -r lib; do
       path=$(ldd "$TEST_SO" | grep -oP "$lib => \K\S+" || true)
       if [ -n "$path" ] && [ "$path" != "not" ]; then
-        rpm -qf "$path" 2>/dev/null | sed 's/-[0-9].*//'
+        real_path=$(readlink -f "$path" 2>/dev/null || echo "$path")
+        rpm -qf "$real_path" 2>/dev/null | sed 's/-[0-9].*//'
       fi
     done | sort -u | paste -sd ', ' -)
 echo "$DEPS"
@@ -94,7 +94,8 @@ ldd "$TEST_SO"
   DEPS=$(objdump -p "$TEST_SO" | grep -oP 'NEEDED\s+\K\S+' | while read -r lib; do
       path=$(ldd "$TEST_SO" | grep -oP "$lib => \K\S+" || true)
       if [ -n "$path" ] && [ "$path" != "not" ]; then
-        pacman -Qo "$path" 2>/dev/null | awk '{print $5}'
+        real_path=$(readlink -f "$path" 2>/dev/null || echo "$path")
+        pacman -Qo "$real_path" 2>/dev/null | awk '{print $5}'
       fi
     done | sort -u | paste -sd ', ' -)
 echo "$DEPS"
