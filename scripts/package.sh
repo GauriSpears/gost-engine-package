@@ -6,7 +6,8 @@ BUILD_ID="${BUILD_ID:-master-${GOST_SHA:0:12}}"
 DISTRO="${DISTRO:?}"
 DISTRO_VERSION="${DISTRO_VERSION:-}"
 BUILD_ROOT="${BUILD_ROOT:-$(pwd)/build}"
-SRC_DIR="${BUILD_ROOT}/gost-src"
+SRC_DIR="${BUILD_ROOT}/gost-src/build"
+TEST_SO="${SRC_DIR}/bin/gostprov.so"
 OUT="${OUT_DIR:-$(pwd)/out}"
 PREFIX="/usr"
 # Version string for packages: 0.0.0+master.<sha12> (valid enough for fpm/dpkg)
@@ -23,7 +24,7 @@ STAGE=$(mktemp -d)
 trap 'rm -rf "$STAGE"' EXIT
 
 echo "==> Staging into $STAGE$PREFIX"
-DESTDIR="$STAGE$PREFIX" cmake --install "$SRC_DIR" --config Release
+DESTDIR="$STAGE$PREFIX" cmake --install "$SRC_DIR/build" --config Release
 
 PKG_NAME="gost-engine"
 DESCRIPTION="Gost-engine master@${GOST_SHA:0:12}"
@@ -31,10 +32,17 @@ DESCRIPTION="Gost-engine master@${GOST_SHA:0:12}"
 package_deb() {
   local suite="${DISTRO_VERSION:-unknown}"
   local deb_ver="${VERSION}-1+${suite}"
+  DEPS=objdump -p "$TEST_SO" | grep -oP 'NEEDED\s+\K\S+' | while read -r lib; do
+      path=$(ldd "$TEST_SO" | grep -oP "$lib => \K\S+" || true)
+      if [ -n "$path" ] && [ "$path" != "not" ]; then
+        dpkg -S "$path" 2>/dev/null | cut -d: -f1
+      fi
+    done | sort -u | paste -sd ', ' -
+echo "$DEPS"
   if command -v fpm >/dev/null 2>&1; then
     fpm -s dir -t deb -n "$PKG_NAME" -v "$VERSION" --iteration "1+${suite}" \
       -a "$DEB_ARCH" --description "$DESCRIPTION" --url "https://github.com/GauriSpears/gost-engine-package" \
-      --depends "libssl3" -C "$STAGE" usr || true
+      --depends "$DEPS" -C "$STAGE" usr || true
     mv -f ${PKG_NAME}_*.deb "$OUT/" 2>/dev/null || true
   fi
   if ! ls "$OUT"/*.deb >/dev/null 2>&1; then
@@ -43,11 +51,11 @@ package_deb() {
     cat > "$STAGE/DEBIAN/control" <<CTRL
 Package: $PKG_NAME
 Version: $deb_ver
-Section: web
+Section: libs
 Priority: optional
 Architecture: $DEB_ARCH
-mastertainer: gost-engine-package CI <ci@localhost>
-Depends: libssl3, libc6
+Maintainer: gost-engine-package CI <ci@localhost>
+Depends: $DEPS
 Installed-Size: ${size:-1}
 Description: $DESCRIPTION
 CTRL
@@ -57,9 +65,16 @@ CTRL
 
 package_rpm() {
   local el="${DISTRO_VERSION:-el}"
+  DEPS=objdump -p "$TEST_SO" | grep -oP 'NEEDED\s+\K\S+' | while read -r lib; do
+      path=$(ldd "$TEST_SO" | grep -oP "$lib => \K\S+" || true)
+      if [ -n "$path" ] && [ "$path" != "not" ]; then
+        rpm -qf "$path" 2>/dev/null | cut -d: -f1
+      fi
+    done | sort -u | paste -sd ', ' -
+echo "$DEPS"
   if command -v fpm >/dev/null 2>&1; then
     fpm -s dir -t rpm -n "$PKG_NAME" -v "0.0.0" --iteration "1.master.${GOST_SHA:0:12}.${el}" \
-      -a "$RPM_ARCH" --description "$DESCRIPTION" --depends "openssl-libs" \
+      -a "$RPM_ARCH" --description "$DESCRIPTION" --depends "$DEPS" \
       -C "$STAGE" usr || true
     mv -f ${PKG_NAME}-*.rpm "$OUT/" 2>/dev/null || true
   fi
@@ -69,9 +84,16 @@ package_rpm() {
 }
 
 package_arch() {
+  DEPS=objdump -p "$TEST_SO" | grep -oP 'NEEDED\s+\K\S+' | while read -r lib; do
+      path=$(ldd "$TEST_SO" | grep -oP "$lib => \K\S+" || true)
+      if [ -n "$path" ] && [ "$path" != "not" ]; then
+        pacman -Qo "$path" 2>/dev/null | cut -d: -f1
+      fi
+    done | sort -u | paste -sd ', ' -
+echo "$DEPS"
   if command -v fpm >/dev/null 2>&1; then
     fpm -s dir -t pacman -n "$PKG_NAME" -v "0.0.0+master.${GOST_SHA:0:12}" --iteration 1 \
-      -a "$ARCH" --description "$DESCRIPTION" -C "$STAGE" usr || true
+      -a "$ARCH" --description "$DESCRIPTION" --depends "$DEPS" -C "$STAGE" usr || true
     mv -f ${PKG_NAME}-*.pkg.tar* "$OUT/" 2>/dev/null || true
   fi
   if ! ls "$OUT"/${PKG_NAME}-* >/dev/null 2>&1; then
