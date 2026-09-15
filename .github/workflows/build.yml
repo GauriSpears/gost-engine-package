@@ -145,12 +145,6 @@ jobs:
           
           apt-get update -y
           
-          # Проверка (можно оставить для отладки)
-          echo "=== sources.list.d/gku.list ==="
-          cat /etc/apt/sources.list.d/gku.list
-          echo "=== available suites ==="
-          apt-cache policy | head -20
-          
           forcepack() {
             pack=$1
             DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confnew" reinstall $pack
