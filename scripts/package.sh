@@ -28,12 +28,14 @@ DESTDIR="$STAGE" cmake --install "${SRC_DIR}/build" --config Release
 PKG_NAME="gost-engine"
 DESCRIPTION="Gost-engine master@${GOST_SHA:0:12}"
 
-echo "$TEST_SO"
-ls "$SRC_DIR"
-
 package_deb() {
   local suite="${DISTRO_VERSION:-unknown}"
   local deb_ver="${VERSION}-1+${suite}"
+
+echo "$TEST_SO"
+ls "${SRC_DIR}/build/bin"
+
+  
   DEPS=objdump -p "$TEST_SO" | grep -oP 'NEEDED\s+\K\S+' | while read -r lib; do
       path=$(ldd "$TEST_SO" | grep -oP "$lib => \K\S+" || true)
       if [ -n "$path" ] && [ "$path" != "not" ]; then
@@ -67,6 +69,10 @@ CTRL
 
 package_rpm() {
   local el="${DISTRO_VERSION:-el}"
+
+echo "$TEST_SO"
+ls "${SRC_DIR}/build/bin"
+
   DEPS=objdump -p "$TEST_SO" | grep -oP 'NEEDED\s+\K\S+' | while read -r lib; do
       path=$(ldd "$TEST_SO" | grep -oP "$lib => \K\S+" || true)
       if [ -n "$path" ] && [ "$path" != "not" ]; then
@@ -86,6 +92,10 @@ echo "$DEPS"
 }
 
 package_arch() {
+
+echo "$TEST_SO"
+ls "${SRC_DIR}/build/bin"
+
   DEPS=objdump -p "$TEST_SO" | grep -oP 'NEEDED\s+\K\S+' | while read -r lib; do
       path=$(ldd "$TEST_SO" | grep -oP "$lib => \K\S+" || true)
       if [ -n "$path" ] && [ "$path" != "not" ]; then
