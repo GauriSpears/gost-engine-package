@@ -29,6 +29,7 @@ jobs:
       sha: ${{ steps.up.outputs.sha }}
       short: ${{ steps.up.outputs.short }}
       build_id: ${{ steps.up.outputs.build_id }}
+      version: ${{ steps.up.outputs.version }}
       should_build: ${{ steps.gate.outputs.should_build }}
       matrix: ${{ steps.matrix.outputs.matrix }}
     steps:
@@ -53,10 +54,12 @@ jobs:
                 | jq -r .sha)
             fi
             SHORT="${SHA:0:12}"
-            BUILD_ID="master-${SHORT}"
+            BUILD_ID="${SHORT}"
+            VERSION="$(date +'%Y.%m.%d')-${SHORT}"
             echo "sha=$SHA" >> "$GITHUB_OUTPUT"
             echo "short=$SHORT" >> "$GITHUB_OUTPUT"
             echo "build_id=$BUILD_ID" >> "$GITHUB_OUTPUT"
+            echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           else
             bash scripts/detect-gost-engine-master.sh | tee /tmp/up.env
             grep -E '^(sha|short|build_id)=' /tmp/up.env >> "$GITHUB_OUTPUT"
@@ -106,6 +109,7 @@ jobs:
     env:
       GOST_SHA: ${{ needs.resolve.outputs.sha }}
       BUILD_ID: ${{ needs.resolve.outputs.build_id }}
+      VERSION: ${{ needs.resolve.outputs.version }}
       DISTRO: ${{ matrix.distro }}
       DISTRO_VERSION: ${{ matrix.version }}
       BUILD_ROOT: /work/build
@@ -159,6 +163,13 @@ jobs:
           }
           
           apt-get install -y build-essential autoconf automake libtool git
+          
+          apt-get install -y dpkg-dev binutils xz-utils \
+            ruby ruby-dev rpm
+          # fpm optional
+          gem install fpm --no-document || true
+          apt-get install -y --no-install-recommends rsync
+          
           rm -rf /usr/local/ssl/share/man/man1/*.1ossl
           rm -rf /usr/local/ssl/share/man/man3/*.3ossl
           rm -rf /usr/local/ssl/share/man/man7/*.7ossl
@@ -193,6 +204,7 @@ jobs:
           pacman-key --init
           pacman -Syu --noconfirm
           pacman -Sy --needed --noconfirm bash grep gcc make autoconf automake libtool git openssl cmake
+          pacman -Sy --noconfirm --needed which tar zstd
 
       - name: Install build dependencies (AlmaLinux)
         if: matrix.distro == 'almalinux'
@@ -203,6 +215,8 @@ jobs:
           dnf -y groupinstall "Development Tools"
           dnf -y update
           dnf -y install gcc gcc-c++ kernel-devel make git autoconf automake libtool git openssl openssl-devel cmake
+          dnf -y install pkgconf-pkg-config which tar gzip rpm-build ruby ruby-devel
+          gem install fpm --no-document
       - name: Build gost-engine from upstream master commit
         run: bash scripts/build.sh
 
@@ -238,10 +252,10 @@ jobs:
           ls -la release-assets
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@main
         with:
-          tag_name: ${{ needs.resolve.outputs.build_id }}
-          name: Gost-engine master@${{ needs.resolve.outputs.short }}
+          tag_name: ${{ needs.resolve.outputs.version }}
+          name: ${{ needs.resolve.outputs.build_id }}
           body: |
             Build of **gost-engine** commit [`${{ needs.resolve.outputs.sha }}`](https://github.com/gost-engine/engine/commit/${{ needs.resolve.outputs.sha }}).
 
