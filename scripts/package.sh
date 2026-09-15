@@ -42,7 +42,7 @@ ldd "$TEST_SO"
     done | sort -u | paste -sd ',' -)
 echo "$DEPS"
   if command -v fpm >/dev/null 2>&1; then
-    fpm -s dir -t deb -n "$PKG_NAME" -v "$VERSION" --iteration "1+${suite}" \
+    fpm -s dir -t deb -n "$PKG_NAME" -v "$VERSION" --iteration "${suite}" \
       -a "$DEB_ARCH" --description "$DESCRIPTION" --url "https://github.com/GauriSpears/gost-engine-package" \
       --depends "$DEPS" -C "$STAGE" usr || true
     mv -f ${PKG_NAME}_*.deb "$OUT/" 2>/dev/null || true
@@ -62,7 +62,7 @@ Depends: $DEPS
 Installed-Size: ${size:-1}
 Description: $DESCRIPTION
 CTRL
-    dpkg-deb --build "$STAGE" "$OUT/${PKG_NAME}_${deb_ver}_${DEB_ARCH}.deb"
+    dpkg-deb --build "$STAGE" "$OUT/${PKG_NAME}_${VERSION}-${suite}_${DEB_ARCH}.deb"
   fi
 }
 
