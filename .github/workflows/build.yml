@@ -164,11 +164,9 @@ jobs:
           
           apt-get install -y build-essential autoconf automake libtool git
           
-          apt-get install -y dpkg-dev binutils xz-utils \
-            ruby ruby-dev rpm
           # fpm optional
-          gem install fpm --no-document || true
-          apt-get install -y --no-install-recommends rsync
+          apt-get install -y ruby ruby-dev squashfs-tools
+          gem install fpm --no-document
           
           rm -rf /usr/local/ssl/share/man/man1/*.1ossl
           rm -rf /usr/local/ssl/share/man/man3/*.3ossl
@@ -204,7 +202,9 @@ jobs:
           pacman-key --init
           pacman -Syu --noconfirm
           pacman -Sy --needed --noconfirm bash grep gcc make autoconf automake libtool git openssl cmake
-          pacman -Sy --noconfirm --needed which tar zstd
+          #dnf optional
+          pacman -Sy --needed --noconfirm ruby base-devel rpm-tools squashfs-tools
+          gem install fpm --no-document
 
       - name: Install build dependencies (AlmaLinux)
         if: matrix.distro == 'almalinux'
@@ -215,8 +215,9 @@ jobs:
           dnf -y groupinstall "Development Tools"
           dnf -y update
           dnf -y install gcc gcc-c++ kernel-devel make git autoconf automake libtool git openssl openssl-devel cmake
-          dnf -y install pkgconf-pkg-config which tar gzip rpm-build ruby ruby-devel
-          gem install fpm --no-document
+          #dnf optional
+          dnf -y install ruby ruby-devel rpm-build squashfs-tools libffi-devel
+          sudo gem install fpm --no-document
       - name: Build gost-engine from upstream master commit
         run: bash scripts/build.sh
 
@@ -252,7 +253,7 @@ jobs:
           ls -la release-assets
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@main
         with:
           tag_name: ${{ needs.resolve.outputs.version }}
           name: ${{ needs.resolve.outputs.build_id }}
