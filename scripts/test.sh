@@ -3,7 +3,7 @@ set -euo pipefail
 
 BUILD_ROOT="${BUILD_ROOT:-$(pwd)/build}"
 SRC_DIR="${BUILD_ROOT}/gost-src"
-GOST_BIN="${NODE_BIN:-$SRC_DIR/build/bin}"
+GOST_BIN="${GOST_BIN:-$SRC_DIR/build/bin}"
 
 if [[ ! -x "$GOST_BIN" ]]; then
   echo "Gost-engine binary not found: $GOST_BIN" >&2

@@ -9,7 +9,7 @@ BUILD_ROOT="${BUILD_ROOT:-$(pwd)/build}"
 SRC_DIR="${BUILD_ROOT}/gost-src"
 TEST_SO="${SRC_DIR}/build/bin/gostprov.so"
 OUT="${OUT_DIR:-$(pwd)/out}"
-# Version string for packages: 0.0.0+master.<sha12> (valid enough for fpm/dpkg)
+# Version string for packages: YYYY.mm.dd-<sha12> (valid enough for fpm/dpkg)
 VERSION="${VERSION:-$(date +'%Y.%m.%d')-${GOST_SHA:0:12}}"
 ARCH="$(uname -m)"
 case "$ARCH" in
@@ -30,7 +30,7 @@ DESCRIPTION="Gost-engine master@${GOST_SHA:0:12}"
 
 package_deb() {
   local suite="${DISTRO_VERSION:-unknown}"
-  local deb_ver="${VERSION}-1+${suite}"
+  local deb_ver="${VERSION}-${suite}"
   DEPS=$(objdump -p "$TEST_SO" | grep -oP 'NEEDED\s+\K\S+' | while read -r lib; do
       path=$(ldd "$TEST_SO" | grep -oP "$lib => \K\S+" || true)
       if [ -n "$path" ] && [ "$path" != "not" ]; then
