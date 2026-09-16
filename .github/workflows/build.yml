@@ -62,7 +62,7 @@ jobs:
             echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           else
             bash scripts/detect-gost-engine-master.sh | tee /tmp/up.env
-            grep -E '^(sha|short|build_id)=' /tmp/up.env >> "$GITHUB_OUTPUT"
+            grep -E '^(sha|short|build_id|version)=' /tmp/up.env >> "$GITHUB_OUTPUT"
           fi
           echo "Upstream build_id=$(grep build_id= "$GITHUB_OUTPUT" | tail -1)"
 
