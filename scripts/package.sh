@@ -43,7 +43,6 @@ package_deb() {
       -a "$DEB_ARCH" --description "$DESCRIPTION" --url "https://github.com/GauriSpears/gost-engine-package" \
       --depends "$DEPS" -C "$STAGE" usr || true
     for f in ${PKG_NAME}_*.deb; do mv -f "$f" "$OUT/${f%_${DEB_ARCH}.deb}-debian-${suite}_${DEB_ARCH}.deb" 2>/dev/null; done
-    #mv -f ${PKG_NAME}_*.deb "$OUT/" 2>/dev/null || true
   fi
   if ! ls "$OUT"/*.deb >/dev/null 2>&1; then
     mkdir -p "$STAGE/DEBIAN"
@@ -73,14 +72,13 @@ package_rpm() {
       fi
     done | sort -u | paste -sd ', ' -)
   if command -v fpm >/dev/null 2>&1; then
-    fpm -s dir -t rpm -n "$PKG_NAME" -v "$VERSION" \
+    fpm -s dir -t rpm -n "$PKG_NAME" -v "$VERSION" --iteration "" \
       -a "$RPM_ARCH" --description "$DESCRIPTION" --depends "$DEPS" \
       -C "$STAGE" usr || true
-    for f in ${PKG_NAME}-*.rpm; do mv -f "$f" "$OUT/${f%.${RPM_ARCH}.rpm}-almalinux-${el}.${RPM_ARCH}.rpm" 2>/dev/null; done
-    #mv -f ${PKG_NAME}-*.rpm "$OUT/" 2>/dev/null || true
+    for f in ${PKG_NAME}-*.rpm; do mv -f "$f" "$OUT/${f%.${RPM_ARCH}.rpm}-almalinux_${el}.${RPM_ARCH}.rpm" 2>/dev/null; done
   fi
   if ! ls "$OUT"/*.rpm >/dev/null 2>&1; then
-    tar -C "$STAGE" -czf "$OUT/${PKG_NAME}-${VERSION}-almalinux-${el}.${RPM_ARCH}.tar.gz" usr
+    tar -C "$STAGE" -czf "$OUT/${PKG_NAME}-${VERSION}-almalinux_${el}.${RPM_ARCH}.tar.gz" usr
   fi
 }
 
@@ -96,7 +94,6 @@ package_arch() {
     fpm -s dir -t pacman -n "$PKG_NAME" -v "$VERSION" \
       -a "$ARCH" --description "$DESCRIPTION" --depends "$DEPS" -C "$STAGE" usr || true
     for f in ${PKG_NAME}-*.pkg.tar*; do mv -f "$f" "$OUT/${f%-${ARCH}.pkg.tar.zst}-arch-rolling-${ARCH}.pkg.tar.zst" 2>/dev/null; done
-    #mv -f ${PKG_NAME}-*.pkg.tar* "$OUT/" 2>/dev/null || true
   fi
   if ! ls "$OUT"/${PKG_NAME}-* >/dev/null 2>&1; then
     if command -v zstd >/dev/null; then
