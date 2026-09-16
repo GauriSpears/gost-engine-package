@@ -5,9 +5,10 @@ set -euo pipefail
 GOST_SHA="${GOST_SHA:?set GOST_SHA (full git commit on gost-engine/engine)}"
 BUILD_ROOT="${BUILD_ROOT:-$(pwd)/build}"
 SRC_DIR="${BUILD_ROOT}/gost-src"
-openssl version -a
 ENGINE_PATH=$(openssl version -a 2>/dev/null | sed -n 's/.*ENGINESDIR: "\([^"]*\)".*/\1/p' || true)
 MOD_PATH=$(openssl version -a 2>/dev/null | sed -n 's/.*MODULESDIR: "\([^"]*\)".*/\1/p' || true)
+#MULTIARCH=$(gcc -print-multiarch 2>/dev/null || dpkg-architecture -qDEB_HOST_MULTIARCH 2>/dev/null)
+#LIBDIR="/usr/lib/${MULTIARCH}"
 
 LIBCRYPTO=""
 for candidate in \

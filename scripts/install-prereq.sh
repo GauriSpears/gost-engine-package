@@ -30,36 +30,36 @@ EOF
   sed -i 's/^[[:space:]]*//' /etc/apt/preferences.d/gku.pref
   apt-get update -y
   apt-get install -y build-essential autoconf automake libtool git
-  rm -rf /usr/local/ssl/share/man/man1/*.1ossl
-  rm -rf /usr/local/ssl/share/man/man3/*.3ossl
-  rm -rf /usr/local/ssl/share/man/man7/*.7ossl
-  rm -rf /usr/local/ssl/share/doc/openssl
-  rm -rf /usr/local/ssl/bin
-  rm -rf /usr/local/ssl/include
-  rm -rf /usr/local/ssl/lib
-  rm -rf /root/openssl
-  rm -rf /usr/bin/openssl
   hash -r
   if ! $isupg; then
+    rm -rf /usr/local/ssl/share/man/man1/*.1ossl
+    rm -rf /usr/local/ssl/share/man/man3/*.3ossl
+    rm -rf /usr/local/ssl/share/man/man7/*.7ossl
+    rm -rf /usr/local/ssl/share/doc/openssl
+    rm -rf /usr/local/ssl/bin
+    rm -rf /usr/local/ssl/include
+    rm -rf /usr/local/ssl/lib
+    rm -rf /root/openssl
+    rm -rf /usr/bin/openssl
     forcepack "openssl libssl-dev" 2
   else
     getpack "openssl libssl-dev" 2
   fi
-  rm -rf /usr/local/doc/cmake-*
-  rm -rf /usr/local/bin/ccmake
-  rm -rf /usr/local/bin/cmake
-  rm -rf /usr/local/bin/ctest
-  rm -rf /usr/local/bin/cpack
-  rm -rf /usr/local/share/cmake-*
-  rm -rf /usr/local/share/vim/vimfiles/indent/cmake.vim
-  rm -rf /usr/local/share/vim/vimfiles/syntax/cmake.vim
-  rm -rf /usr/local/share/emacs/site-lisp/cmake-mode.el
-  rm -rf /usr/local/share/aclocal/cmake.m4
-  rm -rf /usr/local/share/bash-completion/completions/cmake
-  rm -rf /usr/local/share/bash-completion/completions/cpack
-  rm -rf /usr/local/share/bash-completion/completions/ctest
-  hash -r
   if ! $isupg; then
+    rm -rf /usr/local/doc/cmake-*
+    rm -rf /usr/local/bin/ccmake
+    rm -rf /usr/local/bin/cmake
+    rm -rf /usr/local/bin/ctest
+    rm -rf /usr/local/bin/cpack
+    rm -rf /usr/local/share/cmake-*
+    rm -rf /usr/local/share/vim/vimfiles/indent/cmake.vim
+    rm -rf /usr/local/share/vim/vimfiles/syntax/cmake.vim
+    rm -rf /usr/local/share/emacs/site-lisp/cmake-mode.el
+    rm -rf /usr/local/share/aclocal/cmake.m4
+    rm -rf /usr/local/share/bash-completion/completions/cmake
+    rm -rf /usr/local/share/bash-completion/completions/cpack
+    rm -rf /usr/local/share/bash-completion/completions/ctest
+    hash -r
     forcepack cmake 3
   else
     getpack cmake 3
