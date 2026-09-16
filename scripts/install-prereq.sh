@@ -1,5 +1,5 @@
 #!/bin/sh
-. ./hardupdate
+. hardupdate
 #New installation or upgrade.
 isupg=${isupg:-true}
 GETPM=${GET:?}
