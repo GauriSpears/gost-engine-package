@@ -30,7 +30,7 @@ DESCRIPTION="Gost-engine master@${GOST_SHA:0:12}"
 
 package_deb() {
   local suite="${DISTRO_VERSION:-unknown}"
-  local deb_ver="${VERSION}-${suite}"
+  #local deb_ver="${VERSION}-${suite}"
   DEPS=$(objdump -p "$TEST_SO" | grep -oP 'NEEDED\s+\K\S+' | while read -r lib; do
       path=$(ldd "$TEST_SO" | grep -oP "$lib => \K\S+" || true)
       if [ -n "$path" ] && [ "$path" != "not" ]; then
@@ -39,17 +39,18 @@ package_deb() {
       fi
     done | sort -u | paste -sd ',' -)
   if command -v fpm >/dev/null 2>&1; then
-    fpm -s dir -t deb -n "$PKG_NAME" -v "$VERSION" --iteration "debian-${suite}" \
+    fpm -s dir -t deb -n "$PKG_NAME" -v "$VERSION" \
       -a "$DEB_ARCH" --description "$DESCRIPTION" --url "https://github.com/GauriSpears/gost-engine-package" \
       --depends "$DEPS" -C "$STAGE" usr || true
-    mv -f ${PKG_NAME}_*.deb "$OUT/" 2>/dev/null || true
+    for f in ${PKG_NAME}_*.deb; do mv -f "$f" "$OUT/${f%_${DEB_ARCH}.deb}-debian-${suite}_${DEB_ARCH}.deb" 2>/dev/null; done
+    #mv -f ${PKG_NAME}_*.deb "$OUT/" 2>/dev/null || true
   fi
   if ! ls "$OUT"/*.deb >/dev/null 2>&1; then
     mkdir -p "$STAGE/DEBIAN"
     local size; size=$(du -sk "$STAGE/usr" 2>/dev/null | awk '{print $1}')
     cat > "$STAGE/DEBIAN/control" <<CTRL
 Package: $PKG_NAME
-Version: $deb_ver
+Version: $VERSION
 Section: libs
 Priority: optional
 Architecture: $DEB_ARCH
@@ -72,10 +73,11 @@ package_rpm() {
       fi
     done | sort -u | paste -sd ', ' -)
   if command -v fpm >/dev/null 2>&1; then
-    fpm -s dir -t rpm -n "$PKG_NAME" -v "$VERSION" --iteration "almalinux-${el}" \
+    fpm -s dir -t rpm -n "$PKG_NAME" -v "$VERSION" \
       -a "$RPM_ARCH" --description "$DESCRIPTION" --depends "$DEPS" \
       -C "$STAGE" usr || true
-    mv -f ${PKG_NAME}-*.rpm "$OUT/" 2>/dev/null || true
+    for f in ${PKG_NAME}-*.rpm; do mv -f "$f" "$OUT/${f%.${RPM_ARCH}.rpm}-almalinux-${el}.${RPM_ARCH}.rpm" 2>/dev/null; done
+    #mv -f ${PKG_NAME}-*.rpm "$OUT/" 2>/dev/null || true
   fi
   if ! ls "$OUT"/*.rpm >/dev/null 2>&1; then
     tar -C "$STAGE" -czf "$OUT/${PKG_NAME}-${VERSION}-almalinux-${el}.${RPM_ARCH}.tar.gz" usr
@@ -91,9 +93,10 @@ package_arch() {
       fi
     done | sort -u | paste -sd ', ' -)
   if command -v fpm >/dev/null 2>&1; then
-    fpm -s dir -t pacman -n "$PKG_NAME" -v "$VERSION" --iteration "arch-rolling" \
+    fpm -s dir -t pacman -n "$PKG_NAME" -v "$VERSION" \
       -a "$ARCH" --description "$DESCRIPTION" --depends "$DEPS" -C "$STAGE" usr || true
-    mv -f ${PKG_NAME}-*.pkg.tar* "$OUT/" 2>/dev/null || true
+    for f in ${PKG_NAME}-*.pkg.tar*; do mv -f "$f" "$OUT/${f%-${ARCH}.pkg.tar.zst}-arch-rolling-${ARCH}.pkg.tar.zst" 2>/dev/null; done
+    #mv -f ${PKG_NAME}-*.pkg.tar* "$OUT/" 2>/dev/null || true
   fi
   if ! ls "$OUT"/${PKG_NAME}-* >/dev/null 2>&1; then
     if command -v zstd >/dev/null; then
