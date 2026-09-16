@@ -1,5 +1,5 @@
 #!/bin/sh
-SCRIPT_DIR="\( (cd " \)(dirname "\( (readlink -f " \){BASH_SOURCE[0]}")")" && pwd)"
+SCRIPT_DIR="$( cd "$( dirname "$( readlink -f "${BASH_SOURCE[0]}" )" )" && pwd )"
 . "$SCRIPT_DIR/hardupdate"
 #New installation or upgrade.
 isupg=${isupg:-true}
