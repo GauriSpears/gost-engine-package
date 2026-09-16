@@ -72,13 +72,13 @@ package_rpm() {
       fi
     done | sort -u | paste -sd ', ' -)
   if command -v fpm >/dev/null 2>&1; then
-    fpm -s dir -t rpm -n "$PKG_NAME" -v "$VERSION" --iteration "" \
+    fpm -s dir -t rpm -n "$PKG_NAME" -v "$VERSION" --iteration 1 \
       -a "$RPM_ARCH" --description "$DESCRIPTION" --depends "$DEPS" \
       -C "$STAGE" usr || true
     for f in ${PKG_NAME}-*.rpm; do mv -f "$f" "$OUT/${f%.${RPM_ARCH}.rpm}-almalinux_${el}.${RPM_ARCH}.rpm" 2>/dev/null; done
   fi
   if ! ls "$OUT"/*.rpm >/dev/null 2>&1; then
-    tar -C "$STAGE" -czf "$OUT/${PKG_NAME}-${VERSION}-almalinux_${el}.${RPM_ARCH}.tar.gz" usr
+    tar -C "$STAGE" -czf "$OUT/${PKG_NAME}-${VERSION}-1-almalinux_${el}.${RPM_ARCH}.tar.gz" usr
   fi
 }
 
