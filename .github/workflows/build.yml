@@ -206,8 +206,15 @@ jobs:
           pacman -Sy --needed --noconfirm ruby base-devel rpm-tools squashfs-tools
           gem install fpm --no-document
           if ! command -v fpm &>/dev/null; then
-            echo 'export PATH="\( PATH: \)(ruby -e "puts Gem.user_dir")/bin"' >> \~/.bashrc
-            export PATH="\( PATH: \)(ruby -e 'puts Gem.user_dir')/bin"
+            GEM_BIN="$(ruby -e 'puts Gem.bindir')"
+            export PATH="$PATH:$GEM_BIN"
+            for rc in \~/.bashrc \~/.zshrc \~/.profile; do
+              if [[ -f "$rc" ]]; then
+                if ! grep -q "Gem.bindir\|$GEM_BIN" "$rc" 2>/dev/null; then
+                  echo "export PATH=\"\$PATH:$GEM_BIN\"" >> "$rc"
+                fi
+              fi
+            done
           fi
 
       - name: Install build dependencies (AlmaLinux)
