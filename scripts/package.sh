@@ -79,14 +79,14 @@ ldd "$TEST_SO"
     done | sort -u | paste -sd ', ' -)
 echo "$DEPS"
   if command -v fpm >/dev/null 2>&1; then
-    fpm -s dir -t rpm -n "$PKG_NAME" -v "$VERSION" --iteration "1.${GOST_SHA:0:12}.${el}" \
+    fpm -s dir -t rpm -n "$PKG_NAME" -v "$VERSION" --iteration "${el}" \
       -a "$RPM_ARCH" --description "$DESCRIPTION" --depends "$DEPS" \
       -C "$STAGE" usr || true
     mv -f ${PKG_NAME}-*.rpm "$OUT/" 2>/dev/null || true
     echo "FPM!!!!!!!!!!!!!!"
   fi
   if ! ls "$OUT"/*.rpm >/dev/null 2>&1; then
-    tar -C "$STAGE" -czf "$OUT/${PKG_NAME}-${VERSION}.${el}.${RPM_ARCH}.tar.gz" usr
+    tar -C "$STAGE" -czf "$OUT/${PKG_NAME}-${VERSION}-${el}.${RPM_ARCH}.tar.gz" usr
   fi
 }
 
