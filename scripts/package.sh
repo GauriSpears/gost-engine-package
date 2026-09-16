@@ -31,8 +31,6 @@ DESCRIPTION="Gost-engine master@${GOST_SHA:0:12}"
 package_deb() {
   local suite="${DISTRO_VERSION:-unknown}"
   local deb_ver="${VERSION}-1+${suite}"
-objdump -p "$TEST_SO" | grep -oP 'NEEDED\s+\K\S+'
-ldd "$TEST_SO"
   DEPS=$(objdump -p "$TEST_SO" | grep -oP 'NEEDED\s+\K\S+' | while read -r lib; do
       path=$(ldd "$TEST_SO" | grep -oP "$lib => \K\S+" || true)
       if [ -n "$path" ] && [ "$path" != "not" ]; then
@@ -40,13 +38,11 @@ ldd "$TEST_SO"
         dpkg -S "$real_path" 2>/dev/null | cut -d: -f1
       fi
     done | sort -u | paste -sd ',' -)
-echo "$DEPS"
   if command -v fpm >/dev/null 2>&1; then
-    fpm -s dir -t deb -n "$PKG_NAME" -v "$VERSION" --iteration "${suite}" \
+    fpm -s dir -t deb -n "$PKG_NAME" -v "$VERSION" --iteration "debian-${suite}" \
       -a "$DEB_ARCH" --description "$DESCRIPTION" --url "https://github.com/GauriSpears/gost-engine-package" \
       --depends "$DEPS" -C "$STAGE" usr || true
     mv -f ${PKG_NAME}_*.deb "$OUT/" 2>/dev/null || true
-    echo "FPM!!!!!!!!!!!!!!"
   fi
   if ! ls "$OUT"/*.deb >/dev/null 2>&1; then
     mkdir -p "$STAGE/DEBIAN"
@@ -62,14 +58,12 @@ Depends: $DEPS
 Installed-Size: ${size:-1}
 Description: $DESCRIPTION
 CTRL
-    dpkg-deb --build "$STAGE" "$OUT/${PKG_NAME}_${VERSION}-${suite}_${DEB_ARCH}.deb"
+    dpkg-deb --build "$STAGE" "$OUT/${PKG_NAME}_${VERSION}-debian-${suite}_${DEB_ARCH}.deb"
   fi
 }
 
 package_rpm() {
   local el="${DISTRO_VERSION:-el}"
-objdump -p "$TEST_SO" | grep -oP 'NEEDED\s+\K\S+'
-ldd "$TEST_SO"
   DEPS=$(objdump -p "$TEST_SO" | grep -oP 'NEEDED\s+\K\S+' | while read -r lib; do
       path=$(ldd "$TEST_SO" | grep -oP "$lib => \K\S+" || true)
       if [ -n "$path" ] && [ "$path" != "not" ]; then
@@ -77,22 +71,18 @@ ldd "$TEST_SO"
         rpm -qf "$real_path" 2>/dev/null | sed 's/-[0-9].*//'
       fi
     done | sort -u | paste -sd ', ' -)
-echo "$DEPS"
   if command -v fpm >/dev/null 2>&1; then
-    fpm -s dir -t rpm -n "$PKG_NAME" -v "$VERSION" --iteration "${el}" \
+    fpm -s dir -t rpm -n "$PKG_NAME" -v "$VERSION" --iteration "almalinux-${el}" \
       -a "$RPM_ARCH" --description "$DESCRIPTION" --depends "$DEPS" \
       -C "$STAGE" usr || true
     mv -f ${PKG_NAME}-*.rpm "$OUT/" 2>/dev/null || true
-    echo "FPM!!!!!!!!!!!!!!"
   fi
   if ! ls "$OUT"/*.rpm >/dev/null 2>&1; then
-    tar -C "$STAGE" -czf "$OUT/${PKG_NAME}-${VERSION}-${el}.${RPM_ARCH}.tar.gz" usr
+    tar -C "$STAGE" -czf "$OUT/${PKG_NAME}-${VERSION}-almalinux-${el}.${RPM_ARCH}.tar.gz" usr
   fi
 }
 
 package_arch() {
-objdump -p "$TEST_SO" | grep -oP 'NEEDED\s+\K\S+'
-ldd "$TEST_SO"
   DEPS=$(objdump -p "$TEST_SO" | grep -oP 'NEEDED\s+\K\S+' | while read -r lib; do
       path=$(ldd "$TEST_SO" | grep -oP "$lib => \K\S+" || true)
       if [ -n "$path" ] && [ "$path" != "not" ]; then
@@ -100,18 +90,16 @@ ldd "$TEST_SO"
         pacman -Qo "$real_path" 2>/dev/null | awk '{print $5}'
       fi
     done | sort -u | paste -sd ', ' -)
-echo "$DEPS"
   if command -v fpm >/dev/null 2>&1; then
-    fpm -s dir -t pacman -n "$PKG_NAME" -v "$VERSION" --iteration 1 \
+    fpm -s dir -t pacman -n "$PKG_NAME" -v "$VERSION" --iteration "arch-rolling" \
       -a "$ARCH" --description "$DESCRIPTION" --depends "$DEPS" -C "$STAGE" usr || true
     mv -f ${PKG_NAME}-*.pkg.tar* "$OUT/" 2>/dev/null || true
-    echo "FPM!!!!!!!!!!!!!!"
   fi
   if ! ls "$OUT"/${PKG_NAME}-* >/dev/null 2>&1; then
     if command -v zstd >/dev/null; then
-      tar -C "$STAGE" -cf - usr | zstd -o "$OUT/${PKG_NAME}-${VERSION}-${ARCH}.pkg.tar.zst"
+      tar -C "$STAGE" -cf - usr | zstd -o "$OUT/${PKG_NAME}-${VERSION}-arch-rolling-${ARCH}.pkg.tar.zst"
     else
-      tar -C "$STAGE" -czf "$OUT/${PKG_NAME}-${VERSION}-${ARCH}.tar.gz" usr
+      tar -C "$STAGE" -czf "$OUT/${PKG_NAME}-${VERSION}-arch-rolling-${ARCH}.tar.gz" usr
     fi
   fi
 }
