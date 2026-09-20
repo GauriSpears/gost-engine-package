@@ -133,7 +133,7 @@ jobs:
         run: |
           set -euo pipefail
           GETPM=pacman isupg=false bash scripts/install-prereq.sh
-          #dnf optional
+          #fpm optional
           pacman -Sy --needed --noconfirm ruby base-devel rpm-tools squashfs-tools
           gem install fpm --no-document
           if ! command -v fpm &>/dev/null; then
@@ -153,7 +153,7 @@ jobs:
         run: |
           set -euo pipefail
           GETPM=dnf isupg=false bash scripts/install-prereq.sh
-          #dnf optional
+          #fpm optional
           dnf -y install ruby ruby-devel rpm-build squashfs-tools libffi-devel
           gem install fpm --no-document
 
