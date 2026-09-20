@@ -134,19 +134,17 @@ jobs:
           set -euo pipefail
           GETPM=pacman isupg=false bash scripts/install-prereq.sh
           #fpm optional
-          pacman -Sy --needed --noconfirm ruby base-devel rpm-tools squashfs-tools
-          gem install fpm --no-document
+          pacman -Sy --needed --noconfirm ruby ruby-erb base-devel rpm-tools squashfs-tools
           if ! command -v fpm &>/dev/null; then
-            GEM_BIN="$(ruby -e 'puts Gem.bindir')"
-            export PATH="$PATH:$GEM_BIN"
-            for rc in \~/.bashrc \~/.zshrc \~/.profile; do
-              if [[ -f "$rc" ]]; then
-                if ! grep -q "Gem.bindir\|$GEM_BIN" "$rc" 2>/dev/null; then
-                  echo "export PATH=\"\$PATH:$GEM_BIN\"" >> "$rc"
-                fi
+            GEM_HOME="$(ruby -e 'puts Gem.user_dir')/bin"
+            export PATH="$PATH:$GEM_HOME"
+            for rc in ~/.bashrc ~/.zshrc ~/.profile; do
+              if [ -f "$rc" ]; then
+                echo "export PATH=\"\$PATH:$GEM_HOME\"" >> "$rc"
               fi
             done
           fi
+          gem install fpm --no-document
 
       - name: Install build dependencies (AlmaLinux)
         if: matrix.distro == 'almalinux'
