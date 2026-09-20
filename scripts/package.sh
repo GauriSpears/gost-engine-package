@@ -30,7 +30,6 @@ DESCRIPTION="Gost-engine master@${GOST_SHA:0:12}"
 
 package_deb() {
   local suite="${DISTRO_VERSION:-unknown}"
-  #local deb_ver="${VERSION}-${suite}"
   DEPS=$(objdump -p "$TEST_SO" | grep -oP 'NEEDED\s+\K\S+' | while read -r lib; do
       path=$(ldd "$TEST_SO" | grep -oP "$lib => \K\S+" || true)
       if [ -n "$path" ] && [ "$path" != "not" ]; then
