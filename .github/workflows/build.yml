@@ -2,7 +2,7 @@ name: Build gost-engine (upstream master)
 
 on:
   schedule:
-    # Weekly Monday 03:15 UTC
+    # Weekly Sunday 19:00 UTC
     - cron: '00 19 * * 0'
   workflow_dispatch:
     inputs:
