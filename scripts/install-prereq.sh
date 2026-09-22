@@ -45,9 +45,24 @@ EOF
     rm -rf /usr/local/ssl/lib
     rm -rf /root/openssl
     rm -rf /usr/bin/openssl
-    forcepack "openssl libssl-dev" 2
+    getpack "openssl libssl-dev" 2 reinstall
   else
-    getpack "openssl libssl-dev" 2
+    getpack "openssl libssl-dev" 2 install
+  fi
+  OPENSSLDIR=$(openssl version -a 2>/dev/null | sed -n 's/.*OPENSSLDIR: "\([^"]*\)".*/\1/p' || true)
+  if ! grep -q '^\s*\[nodejs_init\]' ${OPENSSLDIR}/openssl.cnf; then
+    cat >> ${OPENSSLDIR}/openssl.cnf << 'EOF'
+
+[nodejs_init]
+providers = provider_node_sect
+
+[provider_node_sect]
+gostprov = gostprov_sect
+default = gostprov_sect
+
+[gostprov_sect]
+activate = 1
+EOF
   fi
   if ! $isupg; then
     rm -rf /usr/local/doc/cmake-*
@@ -64,9 +79,9 @@ EOF
     rm -rf /usr/local/share/bash-completion/completions/cpack
     rm -rf /usr/local/share/bash-completion/completions/ctest
     hash -r
-    forcepack cmake 3
+    getpack cmake 3 reinstall
   else
-    getpack cmake 3
+    getpack cmake 3 install
   fi
 elif [ "${GETPM}" == "pacman" ]; then
   pacman-key --init
@@ -77,6 +92,8 @@ elif [ "${GETPM}" == "dnf" ]; then
   dnf -y install epel-release
   dnf -y groupinstall "Development Tools"
   dnf -y update
-  dnf -y install gcc gcc-c++ kernel-devel make git autoconf automake libtool git openssl openssl-devel cmake
+  GCCLATEST=$(dnf repoquery --available --qf '%{name}' 'gcc-toolset-[0-9]*' | \
+    grep -E '^gcc-toolset-[0-9]+$' | sort -V | tail -1)
+  dnf -y install "$GCCLATEST" kernel-devel make git autoconf automake libtool git openssl openssl-devel cmake
 fi
 exit 0
