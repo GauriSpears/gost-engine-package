@@ -31,7 +31,7 @@ getpack() {
   local i=0
   while [ $i -le 3 ]; do
     if [ $i -gt $maxlvl ]; then
-      exit 0
+      return 0
     fi
     local idep=0
     local prev_pkg=
