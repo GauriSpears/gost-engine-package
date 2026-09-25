@@ -111,3 +111,4 @@ case "$DISTRO" in
 esac
 
 ls -la "$OUT"
+exit 0
