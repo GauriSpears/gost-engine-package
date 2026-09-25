@@ -90,6 +90,7 @@ package_arch() {
       fi
     done | sort -u | paste -sd ', ' -)
   echo "AAA"
+  echo $PATH
   if command -v fpm >/dev/null 2>&1; then
     echo BBB
     fpm -s dir -t pacman -n "$PKG_NAME" -v "$VERSION" \
