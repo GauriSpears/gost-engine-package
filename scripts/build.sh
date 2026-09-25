@@ -81,3 +81,4 @@ cmake --install . --config Release
 pwd
 
 echo "==> Gost-engine build finished"
+exit 0
