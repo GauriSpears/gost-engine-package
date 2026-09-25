@@ -25,3 +25,4 @@ if ! openssl list -digest-algorithms -provider gostprov | grep -i gost; then
 fi
 
 echo "==> All tests passed"
+exit 0
