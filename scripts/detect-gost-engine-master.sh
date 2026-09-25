@@ -17,3 +17,4 @@ echo "sha=$SHA"
 echo "short=$SHORT"
 echo "build_id=$BUILD_ID"
 echo "version=$(date +'%Y.%m.%d')-${SHORT}"
+exit 0
