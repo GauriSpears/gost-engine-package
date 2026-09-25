@@ -85,8 +85,7 @@ elif [ "${GETPM}" == "dnf" ]; then
 fi
 OPENSSLDIR=$(openssl version -a 2>/dev/null | sed -n 's/.*OPENSSLDIR: "\([^"]*\)".*/\1/p' || true)
 if ! grep -q '^nodejs_conf = nodejs_init' "${OPENSSLDIR}/openssl.cnf"; then
-  NODEJS_BLOCK=$(cat <<EOF
-nodejs_conf = nodejs_init
+  NODEJS_BLOCK="nodejs_conf = nodejs_init
 
 [nodejs_init]
 providers = provider_node_sect
@@ -97,8 +96,13 @@ default = gostprov_sect
 
 [gostprov_sect]
 activate = 1
-EOF
-)
-  sed -i "/^\[/i $NODEJS_BLOCK" "${OPENSSLDIR}/openssl.cnf"
+"
+  awk -v insert="$NODEJS_BLOCK" '/^\[/ && !inserted {
+      print insert
+      inserted = 1
+    }
+    {print}
+  ' "${OPENSSLDIR}/openssl.cnf" > "${OPENSSLDIR}/openssl.new" \
+  && mv "${OPENSSLDIR}/openssl.new" "${OPENSSLDIR}/openssl.cnf" 
 fi
 exit 0
