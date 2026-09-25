@@ -105,4 +105,3 @@ activate = 1
   ' "${OPENSSLDIR}/openssl.cnf" > "${OPENSSLDIR}/openssl.new" \
   && mv "${OPENSSLDIR}/openssl.new" "${OPENSSLDIR}/openssl.cnf" 
 fi
-exit 0
