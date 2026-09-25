@@ -41,7 +41,7 @@ package_deb() {
     fpm -s dir -t deb -n "$PKG_NAME" -v "$VERSION" \
       -a "$DEB_ARCH" --description "$DESCRIPTION" --url "https://github.com/GauriSpears/gost-engine-package" \
       --depends "$DEPS" -C "$STAGE" usr
-    for f in ${PKG_NAME}_*.deb; do mv -f "$f" "$OUT/${f%_${DEB_ARCH}.deb}-debian-${suite}_${DEB_ARCH}.deb" 2>/dev/null; done
+    for f in ${PKG_NAME}_*.deb; do mv -f "$f" "$OUT/${f%_${DEB_ARCH}.deb}-debian-${suite}_${DEB_ARCH}.deb"; done
   fi
   if ! ls "$OUT"/*.deb >/dev/null 2>&1; then
     mkdir -p "$STAGE/DEBIAN"
@@ -74,7 +74,7 @@ package_rpm() {
     fpm -s dir -t rpm -n "$PKG_NAME" -v "$VERSION" --iteration 1 \
       -a "$RPM_ARCH" --description "$DESCRIPTION" --depends "$DEPS" \
       -C "$STAGE" usr
-    for f in ${PKG_NAME}-*.rpm; do mv -f "$f" "$OUT/${f%.${RPM_ARCH}.rpm}-almalinux_${el}.${RPM_ARCH}.rpm" 2>/dev/null; done
+    for f in ${PKG_NAME}-*.rpm; do mv -f "$f" "$OUT/${f%.${RPM_ARCH}.rpm}-almalinux_${el}.${RPM_ARCH}.rpm"; done
   fi
   if ! ls "$OUT"/*.rpm >/dev/null 2>&1; then
     tar -C "$STAGE" -czf "$OUT/${PKG_NAME}-${VERSION}-1-almalinux_${el}.${RPM_ARCH}.tar.gz" usr
