@@ -98,7 +98,6 @@ package_arch() {
     for f in ${PKG_NAME}-*.pkg.tar*; do mv -f "$f" "$OUT/${f%-${ARCH}.pkg.tar.zst}-arch-rolling-${ARCH}.pkg.tar.zst"; done
   fi
   if ! ls "$OUT"/${PKG_NAME}-* >/dev/null 2>&1; then
-    fpm
     if command -v zstd >/dev/null; then
       tar -C "$STAGE" -cf - usr | zstd -o "$OUT/${PKG_NAME}-${VERSION}-arch-rolling-${ARCH}.tar.zst"
     else
