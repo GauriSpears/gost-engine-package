@@ -92,7 +92,7 @@ package_arch() {
   if command -v fpm >/dev/null 2>&1; then
     fpm -s dir -t pacman -n "$PKG_NAME" -v "$VERSION" \
       -a "$ARCH" --description "$DESCRIPTION" --depends "$DEPS" -C "$STAGE" usr
-    for f in ${PKG_NAME}-*.pkg.tar*; do mv -f "$f" "$OUT/${f%-${ARCH}.pkg.tar.zst}-arch-rolling-${ARCH}.pkg.tar.zst" 2>/dev/null; done
+    for f in ${PKG_NAME}-*.pkg.tar*; do mv -f "$f" "$OUT/${f%-${ARCH}.pkg.tar.zst}-arch-rolling-${ARCH}.pkg.tar.zst"; done
   fi
   if ! ls "$OUT"/${PKG_NAME}-* >/dev/null 2>&1; then
     if command -v zstd >/dev/null; then
