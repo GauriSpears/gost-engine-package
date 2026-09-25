@@ -89,12 +89,15 @@ package_arch() {
         pacman -Qo "$real_path" 2>/dev/null | awk '{print $5}'
       fi
     done | sort -u | paste -sd ', ' -)
+  echo "AAA"
   if command -v fpm >/dev/null 2>&1; then
+    echo BBB
     fpm -s dir -t pacman -n "$PKG_NAME" -v "$VERSION" \
       -a "$ARCH" --description "$DESCRIPTION" --depends "$DEPS" -C "$STAGE" usr
     for f in ${PKG_NAME}-*.pkg.tar*; do mv -f "$f" "$OUT/${f%-${ARCH}.pkg.tar.zst}-arch-rolling-${ARCH}.pkg.tar.zst"; done
   fi
   if ! ls "$OUT"/${PKG_NAME}-* >/dev/null 2>&1; then
+    fpm
     if command -v zstd >/dev/null; then
       tar -C "$STAGE" -cf - usr | zstd -o "$OUT/${PKG_NAME}-${VERSION}-arch-rolling-${ARCH}.tar.zst"
     else
