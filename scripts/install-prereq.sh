@@ -1,4 +1,5 @@
 #!/bin/sh
+set -euo pipefail
 SCRIPT_DIR="$( cd "$( dirname "$( readlink -f "${BASH_SOURCE[0]}" )" )" && pwd )"
 . "$SCRIPT_DIR/hardupdate"
 #New installation or upgrade.
@@ -105,3 +106,4 @@ activate = 1
   ' "${OPENSSLDIR}/openssl.cnf" > "${OPENSSLDIR}/openssl.new" \
   && mv "${OPENSSLDIR}/openssl.new" "${OPENSSLDIR}/openssl.cnf" 
 fi
+exit 0
