@@ -145,6 +145,7 @@ jobs:
             done
           fi
           gem install fpm --no-document
+          echo $PATH
 
       - name: Install build dependencies (AlmaLinux)
         if: matrix.distro == 'almalinux'
@@ -162,7 +163,9 @@ jobs:
         run: bash scripts/test.sh
 
       - name: Package
-        run: bash scripts/package.sh
+        run: |
+          echo $PATH
+          bash scripts/package.sh
 
       - name: Upload artifacts
         uses: actions/upload-artifact@main
