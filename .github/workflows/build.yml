@@ -65,7 +65,7 @@ jobs:
           fi
           VERSION="$(date +'%Y.%m.%d')"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "revision=$(scripts/next-revision.sh $VERSION)" >> "$GITHUB_OUTPUT"
+          echo "revision=$(bash scripts/next-revision.sh $VERSION)" >> "$GITHUB_OUTPUT"
           echo "Upstream build_id=$(grep build_id= "$GITHUB_OUTPUT" | tail -1)"
 
       - name: Should we build?
