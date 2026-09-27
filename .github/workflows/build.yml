@@ -128,7 +128,8 @@ jobs:
           set -eu
           GETPM=apt-get isupg=false bash scripts/install-prereq.sh
           # fpm optional
-          apt-get install -y ruby ruby-dev squashfs-tools
+          . "scripts/hardupdate"
+          getpack "ruby ruby-dev squashfs-tools" 0 install
           gem install fpm --no-document
 
       - name: Install build dependencies (Arch)
