@@ -65,16 +65,27 @@ git submodule update --init
 echo "==> Building commit $(git rev-parse HEAD)"
 mkdir -p build
 cd build
-cmake -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_INSTALL_PREFIX=/usr \
-  -DOPENSSL_ROOT_DIR=/usr \
-  -DOPENSSL_ENGINES_DIR="${ENGINE_PATH}" \
-  -DOPENSSL_MODULES_DIR=${MOD_PATH} \
-  -DOPENSSL_CRYPTO_LIBRARY="${LIBCRYPTO}" \
-  -DOPENSSL_SSL_LIBRARY="${LIBSSL}" \
-  -DOPENSSL_INCLUDE_DIR=/usr/include \
-  ..
-
+if [[ -z "${ENGINE_PATH}" ]]; then
+  cmake -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DOPENSSL_ROOT_DIR=/usr \
+    -DGOST_BUILD_ENGINE=OFF \
+    -DOPENSSL_MODULES_DIR=${MOD_PATH} \
+    -DOPENSSL_CRYPTO_LIBRARY="${LIBCRYPTO}" \
+    -DOPENSSL_SSL_LIBRARY="${LIBSSL}" \
+    -DOPENSSL_INCLUDE_DIR=/usr/include \
+    ..
+else
+  cmake -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DOPENSSL_ROOT_DIR=/usr \
+    -DOPENSSL_ENGINES_DIR="${ENGINE_PATH}" \
+    -DOPENSSL_MODULES_DIR=${MOD_PATH} \
+    -DOPENSSL_CRYPTO_LIBRARY="${LIBCRYPTO}" \
+    -DOPENSSL_SSL_LIBRARY="${LIBSSL}" \
+    -DOPENSSL_INCLUDE_DIR=/usr/include \
+    ..
+fi  
 cmake --build . --config Release
 cmake --install . --config Release
 
